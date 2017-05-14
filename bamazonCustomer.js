@@ -65,13 +65,27 @@ function checkInventory( itemid, qty){
                               sleep(5000);
 
                               //update inventory
-                              connection.query('UPDATE products SET ? WHERE ?' , [{ item_quantity: (qtyInStock - qty) }, 
-                                                                                  { item_id: itemid }],
+
+                              // connection.query('UPDATE products SET ? WHERE ?' , [{ item_quantity    : (qtyInStock - qty) }, 
+                                                                                 //  { item_id          : itemid }],
+
+                               
+
+                                    
+  connection.query('UPDATE products SET  item_quantity = ' + (qtyInStock - qty) + ', product_sales = ' + (qty * price) + 'WHERE item_id = ' + itemid,
+
+
+
+                            //   var query =  'UPDATE products SET item_quantity = ?, SET product_sales = ?, WHERE item_id = ?';
+                            //   connection.query(query,[parseInt(qtyInStock) - parseInt(qty), parseInt(price) * parseInt(qty), itemid],  
+
                                function(err, res){
                                    if (err) {
-                                       console.error(result);
+                                       console.error(res);
                                        return;
                                    }  
+
+                                
 
                                    console.log('Your total is $' + price * qty);                                 
                                    console.log('Thank you for shopping with BAMAZON.');

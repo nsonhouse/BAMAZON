@@ -21,12 +21,13 @@ var printInventory = function(){
                     t.newRow()
             }); console.log(t.toString());  
         });
-        return; 
+        
+        startMangerPortal();
 }
 ////////////////////////////////////////////////////////////////////////////
 var printLowInv = function(){
              
-             connection.query("SELECT * FROM products WHERE item_quantity < 5", function(err, res){
+             connection.query("SELECT * FROM products WHERE item_quantity < 10", function(err, res){
         
             var t = new Table;
             res.forEach(function(product){
@@ -37,7 +38,7 @@ var printLowInv = function(){
                     t.newRow()
             }); console.log(t.toString());  
         });
-        return; 
+        startMangerPortal();
 }//end printLowInv
 //////////////////////////////////////////////////////////////////////////
 var addToInv = function(){
@@ -62,9 +63,9 @@ var addToInv = function(){
                                     console.log('No results found. Please enter a valid ID.');
                                 }
                                 else{
-                                    var qtyInStock = res[0].item_quantity; 
+                                    var qtyInStock = parseInt(res[0].item_quantity); 
                                     //update inventory
-                                    connection.query('UPDATE products SET ? WHERE ?' , [{ item_quantity: (qtyInStock + user.qty) }, 
+                                    connection.query('UPDATE products SET ? WHERE ?' , [{ item_quantity: (parseInt(qtyInStock) + parseInt(user.qty)) }, 
                                                                                         { item_id: user.sku }],                                                                                           
 
                                     function(err, res){
@@ -73,30 +74,58 @@ var addToInv = function(){
                                             return;
                                         }  
                                     });
-
-
-                                    console.log(res);
                                 }
                           });
-
                                 
-                        });//end of .then 
-
+                    });//end of .then 
+                    startMangerPortal();
 }
-                        
-           
+//////////////////////////////////////////////////////////////////////////////
+var addNewProd = function(){
+
+                             inquirer.prompt([
+                                 {
+                                    type: "input",
+                                    name: "prodName",
+                                    message: "Enter the product name.\n"
+                                 },
+                                 {
+                                    type: "input",
+                                    name: "deptName",
+                                    message: "Enter the department name.\n"
+                                 },
+                                 {
+                                    type: "input",
+                                    name: "price",
+                                    message: "Enter the price.\n"
+                                 },
+                                 {
+                                    type: "input",
+                                    name: "qty",
+                                    message: "Enter the quantity.\n"
+                                 }
 
 
+                                 ]).then(function(user) {
+                                
+                                connection.query("INSERT INTO products SET ?", {
 
+                                    "product_name"      : user.prodName,
+                                    "department_name"   : user.deptName,
+                                    "price"             : user.price,
+                                    "item_quantity"     : user.qty
+                                }, function(err) {
+                                    if (err) throw err;
+                                    console.log(" 1 record inserted successfully");                        
+                                });
 
+                        });//end of .then
+                       // startMangerPortal();
+               
+}// end of addNewProd
 
-
-/////////////////////////////////////////////////////////////////
-
-
+/////////////////////////////////////////////////////////////////////////////////
 var startMangerPortal = function() {
-
-
 
 console.log('MANAGER PORTAL BAMAZON');
 
@@ -134,27 +163,18 @@ console.log('MANAGER PORTAL BAMAZON');
 
                  else {
                     console.log("\nExiting Manager Portal...");
-                    return;
+                    sleep(2000);
+                    connection.end();
+                    
                 }
-                
-
-
-
-
-
-
-
-        });//end of .then
-
-
-
-
+            });//end of .then
 }; 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 
-        var connection = mysql.createConnection({
+//main()
+
+ var connection = mysql.createConnection({
   host     : 'localhost',
   port     : 3306,
   user     : 'root',
@@ -164,7 +184,7 @@ console.log('MANAGER PORTAL BAMAZON');
 
 connection.connect(function(err) {
   if (err) throw err;
-  console.log("connected as id " + connection.threadId);
+  console.log("\nconnected as id " + connection.threadId + "\n");
 });
 
 
